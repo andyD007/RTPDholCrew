@@ -1,6 +1,6 @@
 import "server-only";
 import type { Json } from "@/types/database";
-import type { TypedSupabaseClient } from "@/lib/database/server";
+import { createServiceClient } from "@/lib/database/server";
 
 /**
  * Domain events. Every meaningful state change is recorded here — it is both
@@ -43,8 +43,9 @@ export type EmitInput = {
   occurredAt?: Date;
 };
 
-export async function emitDomainEvent(db: TypedSupabaseClient, input: EmitInput): Promise<string> {
-  const { data, error } = await db
+/** Domain events are system-owned (staff can read, not write), so they are always written with the service role. */
+export async function emitDomainEvent(input: EmitInput): Promise<string> {
+  const { data, error } = await createServiceClient()
     .from("domain_events")
     .insert({
       type: input.type,

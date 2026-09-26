@@ -69,7 +69,7 @@ export async function draftCustomerResponse(
 ) {
   const ctx = await requireContext(db, leadId);
   const facts = leadFacts(ctx, todayLocal());
-  const token = opts.linkToken ?? (await createAccessToken(db, leadId));
+  const token = opts.linkToken ?? (await createAccessToken(leadId));
   const links = customerLinks(token);
   const social = await getSetting("business.social", db);
   const review = social.googleReview || social.facebookReview || undefined;

@@ -1,10 +1,11 @@
 import "server-only";
 import { createServiceClient, isSupabaseConfigured, type TypedSupabaseClient } from "@/lib/database/server";
 import { notifyAdmin } from "@/lib/notifications/send";
+import { syncBookingToCalendar } from "@/lib/calendar/sync";
 import { absoluteUrl } from "@/lib/utils";
 import type { Tables } from "@/types/database";
 import { EVENT_LABELS, emitDomainEvent } from "./events";
-import { computeScheduledFor, dedupeKey, EVENT_RELATIVE_TRIGGERS } from "./scheduling";
+import { checkConditions, computeScheduledFor, dedupeKey, EVENT_RELATIVE_TRIGGERS, TERMINAL_LEAD_STATES } from "./scheduling";
 import { executeRun } from "./runner";
 
 /**
@@ -37,6 +38,7 @@ export async function dispatchPendingDomainEvents(db: TypedSupabaseClient, limit
     try {
       await scheduleRulesForEvent(db, ev);
       await runSystemHandler(db, ev);
+      if (ev.lead_id) await pruneStaleRuns(db, ev.lead_id);
       await db.from("domain_events").update({ processed_at: new Date().toISOString(), attempts: ev.attempts + 1, last_error: null }).eq("id", ev.id);
       processed++;
     } catch (err) {
@@ -94,7 +96,41 @@ async function scheduleRulesForEvent(db: TypedSupabaseClient, ev: DomainEventRow
   }
 }
 
-/** Built-in internal notifications (not configurable rules). */
+/**
+ * Cancel pending runs whose conditions can no longer be met (e.g. a quote
+ * follow-up after the quote was accepted), so the schedule stays truthful.
+ * Conditions are still re-checked at execution time as a second guard.
+ */
+async function pruneStaleRuns(db: TypedSupabaseClient, leadId: string) {
+  const { data: runs } = await db.from("automation_runs").select("id, automation_rules(conditions)").eq("lead_id", leadId).eq("status", "pending");
+  if (!runs?.length) return;
+  const { data: state } = await db
+    .from("leads")
+    .select("status, quotes(status, created_at), contracts!contracts_lead_id_fkey(status, created_at), bookings(status)")
+    .eq("id", leadId)
+    .single();
+  if (!state) return;
+  const latest = <T extends { created_at: string; status: string }>(rows: T[] | null, skip?: string) =>
+    [...(rows ?? [])].filter((r) => r.status !== skip).sort((a, b) => b.created_at.localeCompare(a.created_at))[0]?.status ?? null;
+  const current = {
+    leadStatus: state.status,
+    quoteStatus: latest(state.quotes, "superseded"),
+    contractStatus: latest(state.contracts, "void"),
+    bookingStatus: state.bookings?.status ?? null,
+  };
+  const stale = runs.filter((r) => {
+    if (TERMINAL_LEAD_STATES.has(state.status)) return true;
+    const res = checkConditions(r.automation_rules?.conditions, current);
+    // Booking-status conditions are satisfied later (on confirmation), so only prune
+    // runs whose non-booking conditions have moved past.
+    return !res.ok && !(r.automation_rules?.conditions as { bookingStatusIn?: unknown } | null)?.bookingStatusIn;
+  });
+  if (stale.length) {
+    await db.from("automation_runs").update({ status: "cancelled", error: "Conditions no longer apply" }).in("id", stale.map((r) => r.id));
+  }
+}
+
+/** Built-in internal notifications (not configurable rules). contract.signed is notified with the PDF attached by the signing flow. */
 async function runSystemHandler(db: TypedSupabaseClient, ev: DomainEventRow) {
   const leadUrl = ev.lead_id ? absoluteUrl(`/admin/leads/${ev.lead_id}`) : absoluteUrl("/admin");
   const p = (ev.payload ?? {}) as Record<string, unknown>;
@@ -105,7 +141,6 @@ async function runSystemHandler(db: TypedSupabaseClient, ev: DomainEventRow) {
     case "quote.accepted":
     case "quote.declined":
     case "quote.question":
-    case "contract.signed":
     case "payment.deposit_received":
     case "payment.balance_received":
     case "payment.failed":
@@ -114,6 +149,10 @@ async function runSystemHandler(db: TypedSupabaseClient, ev: DomainEventRow) {
       break;
     default:
       break;
+  }
+  // Keep the external calendar in sync; a calendar outage must not block automations.
+  if (ev.lead_id && (ev.type === "booking.confirmed" || ev.type === "booking.cancelled" || ev.type === "event.upcoming")) {
+    await syncBookingToCalendar(db, ev.lead_id).catch((err) => console.error("[calendar] sync failed", err));
   }
 }
 
@@ -159,7 +198,7 @@ export async function completePastEvents(db: TypedSupabaseClient, now = new Date
   for (const b of data ?? []) {
     await db.from("bookings").update({ status: "completed", completed_at: now.toISOString() }).eq("id", b.id).eq("status", "confirmed");
     await db.from("leads").update({ status: "completed" }).eq("id", b.lead_id).in("status", ["confirmed", "deposit_paid"]);
-    await emitDomainEvent(db, { type: "event.completed", leadId: b.lead_id, bookingId: b.id });
+    await emitDomainEvent({ type: "event.completed", leadId: b.lead_id, bookingId: b.id });
   }
   return data?.length ?? 0;
 }
@@ -195,6 +234,6 @@ export async function rescheduleUpcomingRuns(db: TypedSupabaseClient, leadId: st
     const { data: b } = await db.from("bookings").select("status").eq("id", bookingId).single();
     // Emitting event.upcoming re-arms the event-relative rules at the new start time
     // (dedupe keys include the start time, so the new runs don't collide with the cancelled ones).
-    if (b?.status === "confirmed") await emitDomainEvent(db, { type: "event.upcoming", leadId, bookingId, payload: { reason: "rescheduled" } });
+    if (b?.status === "confirmed") await emitDomainEvent({ type: "event.upcoming", leadId, bookingId, payload: { reason: "rescheduled" } });
   }
 }

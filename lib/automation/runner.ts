@@ -132,7 +132,7 @@ export async function executeRun(db: TypedSupabaseClient, run: RunRow, now: Date
     if (!to) return finish("skipped", { reason: `Customer has no ${rule.channel === "email" ? "email" : "phone number"}` });
 
     const [profile, social] = await Promise.all([getSetting("business.profile", db), getSetting("business.social", db)]);
-    const token = await createAccessToken(db, ctx.id);
+    const token = await createAccessToken(ctx.id);
     const links = customerLinks(token);
     const vars = buildTemplateVars(ctx, links, profile, social.googleReview || social.facebookReview);
     const rendered = renderMessage(template, vars);
@@ -152,7 +152,7 @@ export async function executeRun(db: TypedSupabaseClient, run: RunRow, now: Date
       });
       if (res.status === "failed") throw new Error(res.error ?? "Send failed");
       if (["event.week_before", "event.day_before", "contract.reminder", "deposit.reminder"].includes(template.key)) {
-        await emitDomainEvent(db, { type: "reminder.sent", leadId: ctx.id, bookingId: ctx.booking?.id, payload: { template: template.key, channel: rule.channel } });
+        await emitDomainEvent({ type: "reminder.sent", leadId: ctx.id, bookingId: ctx.booking?.id, payload: { template: template.key, channel: rule.channel } });
       }
       return finish("succeeded", { messageId: res.messageId, delivery: res.status });
     }

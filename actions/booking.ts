@@ -118,7 +118,7 @@ export async function submitContactMessage(raw: ContactInput): Promise<ContactRe
       metadata: { phone: input.phone ?? null, topic: input.topic ?? null },
     });
     if (error) throw error;
-    await emitDomainEvent(db, { type: "message.received", actor: "customer", payload: { customerId, topic: input.topic ?? null } });
+    await emitDomainEvent({ type: "message.received", actor: "customer", payload: { customerId, topic: input.topic ?? null } });
     after(() => dispatchDomainEventsSafely());
     return { ok: true };
   } catch (err) {

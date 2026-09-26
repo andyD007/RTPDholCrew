@@ -136,8 +136,8 @@ export async function createLeadFromRequest(
     .single();
   if (leadErr) throw new Error(`Failed to save lead: ${leadErr.message}`);
 
-  const accessToken = await createAccessToken(db, lead.id);
-  await emitDomainEvent(db, {
+  const accessToken = await createAccessToken(lead.id);
+  await emitDomainEvent({
     type: "lead.created",
     leadId: lead.id,
     actor: "customer",

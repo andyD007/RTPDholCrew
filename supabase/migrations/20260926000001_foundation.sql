@@ -97,5 +97,12 @@ begin
 end;
 $$;
 
+-- Only server-side code (service role) may allocate numbers or touch rate limits.
 revoke all on function public.check_rate_limit(text, int, int) from public, anon, authenticated;
 revoke all on function public.next_document_number(text, timestamptz) from public, anon, authenticated;
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    grant execute on function public.check_rate_limit(text, int, int) to service_role;
+    grant execute on function public.next_document_number(text, timestamptz) to service_role;
+  end if;
+end $$;
