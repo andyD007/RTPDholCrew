@@ -77,7 +77,7 @@ export function MessagesPanel({ leadId, messages, customer }: { leadId: string; 
   );
 }
 
-function DraftCard({ draft }: { draft: Message }) {
+export function DraftCard({ draft }: { draft: Message }) {
   const meta = (draft.metadata ?? {}) as { purpose?: string; channel?: string; containsCommitments?: boolean; provider?: string };
   const channel = meta.channel ?? draft.type;
   const [subject, setSubject] = useState(draft.subject ?? "");
@@ -215,7 +215,7 @@ function ComposeForm({ leadId, hasPhone }: { leadId: string; hasPhone: boolean }
   );
 }
 
-function LogItem({ m }: { m: Message }) {
+export function LogItem({ m }: { m: Message }) {
   const [open, setOpen] = useState(false);
   const Icon = m.type === "sms" ? MessageSquare : m.type === "system" ? Wrench : m.type === "ai_draft" ? Bot : Mail;
   return (
