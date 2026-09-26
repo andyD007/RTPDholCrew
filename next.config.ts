@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
+const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : undefined;
+const supabaseWs = supabaseOrigin?.replace(/^http/, "ws");
 const isDev = process.env.NODE_ENV !== "production";
 
 const csp = [
@@ -9,10 +11,10 @@ const csp = [
   // Next.js injects inline bootstrap scripts; GA + Meta Pixel are opt-in via env.
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://connect.facebook.net`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://www.google-analytics.com https://www.facebook.com${supabaseHost ? ` https://${supabaseHost}` : ""}`,
-  `media-src 'self' blob:${supabaseHost ? ` https://${supabaseHost}` : ""}`,
+  `img-src 'self' data: blob: https://www.google-analytics.com https://www.facebook.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  `media-src 'self' blob:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
-  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ""} https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com`,
+  `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""} https://www.google-analytics.com https://*.analytics.google.com https://www.facebook.com`,
   "frame-src 'self' https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "form-action 'self' https://checkout.stripe.com",
@@ -24,6 +26,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
+    qualities: [60, 70, 75, 80],
     deviceSizes: [375, 430, 640, 768, 1024, 1280, 1440, 1920],
     imageSizes: [96, 128, 200, 256, 384],
     remotePatterns: supabaseHost
