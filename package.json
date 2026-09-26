@@ -13,7 +13,8 @@
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "db:generate-sql": "tsx scripts/generate-sql.ts",
     "db:types": "tsx scripts/gen-db-types.ts",
-    "media:placeholders": "tsx scripts/generate-placeholder-media.ts"
+    "media:placeholders": "tsx scripts/generate-placeholder-media.ts",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

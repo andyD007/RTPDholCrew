@@ -9,8 +9,8 @@ export function SiteFooter({ profile, social }: { profile: BusinessProfile; soci
   const year = new Date().getFullYear();
   return (
     <footer className="border-t border-border bg-elevated pb-28 pt-16 sm:pb-12">
-      <div className="container-page grid gap-12 md:grid-cols-12">
-        <div className="md:col-span-5">
+      <div className="container-page grid gap-12 sm:grid-cols-2 lg:grid-cols-12">
+        <div className="sm:col-span-2 lg:col-span-5">
           <Logo />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
             Live Dhol for Baraats, weddings, Sangeets, birthdays and celebrations across Raleigh, Durham, Cary and the
@@ -30,7 +30,7 @@ export function SiteFooter({ profile, social }: { profile: BusinessProfile; soci
           </div>
         </div>
 
-        <nav aria-label="Footer" className="md:col-span-2">
+        <nav aria-label="Footer" className="lg:col-span-2">
           <p className="eyebrow mb-4">Explore</p>
           <ul className="grid gap-2.5 text-sm">
             {mainNav.map((i) => (
@@ -48,7 +48,7 @@ export function SiteFooter({ profile, social }: { profile: BusinessProfile; soci
           </ul>
         </nav>
 
-        <nav aria-label="Service areas" className="md:col-span-2">
+        <nav aria-label="Service areas" className="lg:col-span-2">
           <p className="eyebrow mb-4">Service areas</p>
           <ul className="grid gap-2.5 text-sm">
             {areaPages.map((a) => (
@@ -61,7 +61,7 @@ export function SiteFooter({ profile, social }: { profile: BusinessProfile; soci
           </ul>
         </nav>
 
-        <div className="md:col-span-3">
+        <div className="min-w-0 lg:col-span-3">
           <p className="eyebrow mb-4">Contact</p>
           <ul className="grid gap-3 text-sm">
             <li>
@@ -71,7 +71,7 @@ export function SiteFooter({ profile, social }: { profile: BusinessProfile; soci
             </li>
             <li>
               <a href={`mailto:${profile.email}`} className="flex items-center gap-2.5 text-foreground/80 hover:text-foreground">
-                <Mail className="size-4 text-gold" /> {profile.email}
+                <Mail className="size-4 shrink-0 text-gold" /> <span className="break-all">{profile.email}</span>
               </a>
             </li>
             <li className="flex items-center gap-2.5 text-foreground/80">

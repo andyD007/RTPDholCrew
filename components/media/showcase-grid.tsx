@@ -100,7 +100,6 @@ function ShowcaseTile({ showcase, priority, onOpen }: { showcase: ShowcaseView; 
   const cover = showcase.cover;
   const isVideo = cover?.kind === "video";
   const multi = showcase.media.length > 1;
-  const label = [showcase.eventType?.name, showcase.city].filter(Boolean).join(" · ");
 
   return (
     <Link
@@ -112,8 +111,8 @@ function ShowcaseTile({ showcase, priority, onOpen }: { showcase: ShowcaseView; 
         onOpen();
       }}
       className="group relative block aspect-[9/16] overflow-hidden bg-card outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold sm:rounded-sm"
-      aria-label={`View event: ${showcase.title}${label ? ` — ${label}` : ""}`}
     >
+      <span className="sr-only">View event: {showcase.title}. </span>
       {cover ? (
         isVideo ? (
           <VideoPreview src={cover.url} poster={cover.posterUrl} alt={cover.alt} className="transition-transform duration-700 group-hover:scale-[1.04]" />

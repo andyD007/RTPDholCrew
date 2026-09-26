@@ -42,7 +42,7 @@ export function SiteHeader({ phone, instagram }: { phone: string; instagram: str
       </a>
       <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
         <Logo />
-        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Main" className="hidden items-center gap-0.5 xl:flex">
           {mainNav.map((item) => (
             <Link
               key={item.href}
@@ -63,7 +63,7 @@ export function SiteHeader({ phone, instagram }: { phone: string; instagram: str
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogPrimitive.Trigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+              <Button variant="ghost" size="icon" className="xl:hidden" aria-label="Open menu">
                 <Menu className="size-6" />
               </Button>
             </DialogPrimitive.Trigger>

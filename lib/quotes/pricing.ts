@@ -112,7 +112,7 @@ export function suggestPrice(input: PricingInput): QuoteSuggestion {
   } else {
     const billable = Math.max(0, input.travelMiles - input.rules.travelFreeRadiusMiles);
     // Round trip for miles beyond the free radius.
-    travelFeeCents = round25(billable * 2 * input.rules.travelPerMileCents);
+    travelFeeCents = Math.round((billable * 2 * input.rules.travelPerMileCents) / 500) * 500; // nearest $5
     factors.push({
       label: "Travel",
       impact: travelFeeCents ? `+$${(travelFeeCents / 100).toFixed(0)}` : "included",

@@ -16,7 +16,9 @@ import type {
 export function fallbackLeadIntake(f: LeadFacts): LeadIntakeOutput {
   const missing: string[] = [];
   const isBaraat = /baraat/i.test(f.eventType) || /baraat/i.test(f.service);
-  if (isBaraat && !/start|begin|from|porte|lobby|parking/i.test(`${f.specialInstructions ?? ""} ${f.customerMessage ?? ""}`)) {
+  // Only count a start location as known when the details actually state one (not "not sure where it starts").
+  const details = `${f.specialInstructions ?? ""} ${f.entranceInstructions ?? ""}`;
+  if (isBaraat && !/\b(starts?|begins?|starting|beginning)\s+(at|from|in)\b|porte|lobby|driveway/i.test(details)) {
     missing.push("Exact Baraat starting location");
   }
   if (!f.streetKnown) missing.push("Venue street address");
