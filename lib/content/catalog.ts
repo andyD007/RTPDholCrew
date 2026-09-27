@@ -643,8 +643,8 @@ export const defaultSettings: { key: string; value: unknown; isPublic: boolean }
     key: "business.social",
     isPublic: true,
     value: {
-      instagram: "https://instagram.com/rtpdholcrew",
-      facebook: "https://facebook.com/rtpdholcrew",
+      instagram: "https://www.instagram.com/rtpdholcrew/",
+      facebook: "",
       googleReview: "",
       facebookReview: "",
     },

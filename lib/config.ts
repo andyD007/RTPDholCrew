@@ -20,8 +20,8 @@ export const siteConfig = {
   phoneHref: "tel:+19195550142",
   address: { locality: "Raleigh", region: "NC", country: "US" },
   social: {
-    instagram: "https://instagram.com/rtpdholcrew",
-    facebook: "https://facebook.com/rtpdholcrew",
+    instagram: "https://www.instagram.com/rtpdholcrew/",
+    facebook: "",
     youtube: "",
     googleReview: "",
   },
