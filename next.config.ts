@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
+import { resolveSupabaseEnv } from "./lib/supabase-env";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabasePublic = resolveSupabaseEnv();
+const supabaseUrl = supabasePublic.url;
 const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : undefined;
 const supabaseWs = supabaseOrigin?.replace(/^http/, "ws");
@@ -24,6 +26,12 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Inline the public Supabase values under the names the browser code and
+  // proxy read, whichever name the integration stored them under.
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: supabasePublic.url ?? "",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: supabasePublic.anonKey ?? "",
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [60, 70, 75, 80],

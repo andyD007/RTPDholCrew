@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { normalizeSiteUrl } from "./site-url";
+import { resolveSupabaseEnv } from "./supabase-env";
 
 /**
  * Server-side environment. Every integration is optional so the app degrades
@@ -73,7 +74,13 @@ let cached: ServerEnv | undefined;
 
 export function env(): ServerEnv {
   if (cached) return cached;
-  const parsed = schema.safeParse(process.env);
+  const supabase = resolveSupabaseEnv();
+  const parsed = schema.safeParse({
+    ...process.env,
+    NEXT_PUBLIC_SUPABASE_URL: supabase.url,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: supabase.anonKey,
+    SUPABASE_SERVICE_ROLE_KEY: supabase.serviceRoleKey,
+  });
   if (!parsed.success) {
     throw new Error(
       `Invalid environment configuration:\n${parsed.error.issues
