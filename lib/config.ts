@@ -1,3 +1,4 @@
+import { siteUrl } from "./site-url";
 /**
  * Public, browser-safe configuration. Only NEXT_PUBLIC_* values and static
  * brand constants live here. Business details that admins can edit are stored
@@ -6,7 +7,7 @@
 export const siteConfig = {
   name: "RTP Dhol Crew",
   shortName: "RTP Dhol",
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
+  url: siteUrl,
   timezone: process.env.NEXT_PUBLIC_BUSINESS_TIMEZONE ?? "America/New_York",
   tagline: "Bring the beat. Own the moment.",
   description:

@@ -1,3 +1,4 @@
+import { siteUrl } from "./site-url";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -25,7 +26,7 @@ export function initials(name: string): string {
 }
 
 export function absoluteUrl(path = "/"): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = siteUrl;
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 

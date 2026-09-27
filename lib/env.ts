@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { normalizeSiteUrl } from "./site-url";
 
 /**
  * Server-side environment. Every integration is optional so the app degrades
@@ -11,9 +12,19 @@ const optional = z
   .optional()
   .transform((v) => (v && v.trim().length > 0 ? v.trim() : undefined));
 
+/** Lower-case and trim a choice setting so "None " or "Anthropic" still match. */
+const choice = <T extends [string, ...string[]]>(values: T, fallback: T[number]) =>
+  z.preprocess(
+    (v) => (typeof v === "string" && v.trim() ? v.trim().toLowerCase() : undefined),
+    z.enum(values).default(fallback).catch(fallback),
+  );
+
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_SITE_URL: z
+    .string()
+    .optional()
+    .transform((v) => normalizeSiteUrl(v)),
   NEXT_PUBLIC_BUSINESS_TIMEZONE: z.string().default("America/New_York"),
 
   NEXT_PUBLIC_SUPABASE_URL: optional,
@@ -44,13 +55,13 @@ const schema = z.object({
   TWILIO_FROM_NUMBER: optional,
   TWILIO_MESSAGING_SERVICE_SID: optional,
 
-  AI_PROVIDER: z.enum(["anthropic", "openai", "none"]).default("anthropic"),
+  AI_PROVIDER: choice(["anthropic", "openai", "none"], "anthropic"),
   ANTHROPIC_API_KEY: optional,
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
   OPENAI_API_KEY: optional,
   OPENAI_MODEL: z.string().default("gpt-5-mini"),
 
-  CALENDAR_PROVIDER: z.enum(["ics", "google"]).default("ics"),
+  CALENDAR_PROVIDER: choice(["ics", "google"], "ics"),
   GOOGLE_CALENDAR_ID: optional,
   GOOGLE_SERVICE_ACCOUNT_EMAIL: optional,
   GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: optional,
