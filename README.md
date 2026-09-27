@@ -31,7 +31,7 @@ Browser ──► Next.js 16 (App Router, React 19, TypeScript)
              ▼
         Server actions ─► lib/* services (business logic) ─► Supabase (Postgres + RLS, Auth, Storage)
                                │
-                               ├─ lib/automation   outbox → rules → runs (Vercel Cron every 15 min + after() hooks)
+                               ├─ lib/automation   outbox → rules → runs (Vercel Cron + after() hooks)
                                ├─ lib/agents       7 agents, prompts in lib/agents/prompts, Zod-validated output
                                ├─ lib/payments     Stripe (server-only)
                                ├─ lib/email, sms   Resend / Twilio behind provider interfaces
@@ -172,7 +172,7 @@ Catalog and sample data are defined once in `lib/content/catalog.ts` and `lib/co
 
 1. Push to GitHub and import the repo in Vercel (framework: Next.js).
 2. Add all production environment variables (use Stripe **live** keys only when ready). Set `NEXT_PUBLIC_SITE_URL` to the final domain.
-3. `vercel.json` schedules `/api/cron/automations` every 15 minutes. Set `CRON_SECRET` in Vercel (Vercel sends it as a bearer token). Hobby plans only allow daily crons — use Pro, or an external scheduler hitting the endpoint with the bearer header.
+3. `vercel.json` schedules `/api/cron/automations` once a day (13:00 UTC), which is the most the Vercel Hobby plan allows. On Pro, change the schedule to `*/15 * * * *` for timely reminders, or keep daily and point an external scheduler (e.g. cron-job.org) at the endpoint every 15 minutes with the header `Authorization: Bearer $CRON_SECRET`. Set `CRON_SECRET` in Vercel (Vercel sends it as a bearer token).
 4. Point the Stripe webhook and Supabase auth redirect URLs at the production domain.
 5. Upload real photos/videos in Admin → Media & events and replace the placeholder hero (`NEXT_PUBLIC_HERO_VIDEO_URL`, `public/media/samples/hero-poster*.jpg`).
 
