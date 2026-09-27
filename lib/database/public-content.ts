@@ -105,6 +105,20 @@ const fallbackShowcases = (): ShowcaseView[] =>
   });
 
 // ── queries ────────────────────────────────────────────────────────────────
+/**
+ * A database read failed. During `next build` (e.g. the first deploy, before
+ * the SQL setup has run or while Supabase is unreachable) we log and render
+ * empty sections instead of failing the whole deployment; pages revalidate
+ * and pick up real content once the database answers. At runtime we throw so
+ * ISR keeps serving the last good page.
+ */
+function loadFailed<T>(what: string, message: string, empty: T): T {
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    console.warn(`[build] Could not load ${what} (${message}); rendering without it until the next revalidation.`);
+    return empty;
+  }
+  throw new Error(`Failed to load ${what}: ${message}`);
+}
 export const getEventTypes = cache(async (): Promise<EventTypeView[]> => {
   if (!isSupabaseConfigured()) return fallbackEventTypes();
   const { data, error } = await createPublicClient()
@@ -112,14 +126,14 @@ export const getEventTypes = cache(async (): Promise<EventTypeView[]> => {
     .select("id, slug, name")
     .eq("is_active", true)
     .order("sort_order");
-  if (error) throw new Error(`Failed to load event types: ${error.message}`);
+  if (error) return loadFailed("event types", error.message, []);
   return data;
 });
 
 export const getServices = cache(async (): Promise<ServiceView[]> => {
   if (!isSupabaseConfigured()) return fallbackServices();
   const { data, error } = await createPublicClient().from("services").select("*").eq("is_active", true).order("sort_order");
-  if (error) throw new Error(`Failed to load services: ${error.message}`);
+  if (error) return loadFailed("services", error.message, []);
   return data.map(mapService);
 });
 
@@ -151,7 +165,7 @@ export const getPackages = cache(async (): Promise<PackageView[]> => {
     .select("*, package_services(quantity, services(slug, name))")
     .eq("is_active", true)
     .order("sort_order");
-  if (error) throw new Error(`Failed to load packages: ${error.message}`);
+  if (error) return loadFailed("packages", error.message, []);
   return data.map((p) => ({
     id: p.id,
     slug: p.slug,
@@ -179,7 +193,7 @@ export const getShowcases = cache(async (): Promise<ShowcaseView[]> => {
     .eq("is_published", true)
     .order("sort_order")
     .order("event_date", { ascending: false });
-  if (error) throw new Error(`Failed to load showcases: ${error.message}`);
+  if (error) return loadFailed("showcases", error.message, []);
   return data.map((s) => {
     const media = s.media
       .filter((m) => m.is_published)
@@ -233,7 +247,7 @@ export const getTestimonials = cache(async (): Promise<TestimonialView[]> => {
     .select("*, event_types(name)")
     .eq("is_published", true)
     .order("sort_order");
-  if (error) throw new Error(`Failed to load testimonials: ${error.message}`);
+  if (error) return loadFailed("testimonials", error.message, []);
   return data.map((t) => ({
     id: t.id,
     customerName: t.customer_name,
