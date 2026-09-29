@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { ShowcaseView } from "@/types/content";
 import { ShowcaseGrid } from "@/components/media/showcase-grid";
-import { BeatMark } from "@/components/layout/logo";
+import { CrestMark } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 
 /** Instagram-profile-style header + grid. */
@@ -18,7 +18,7 @@ export function FeedSection({ showcases, instagram, limit = 9 }: { showcases: Sh
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="rounded-full bg-gradient-to-tr from-gold via-gold-soft to-burgundy p-[2px]">
               <div className="grid size-16 place-items-center rounded-full bg-background sm:size-20">
-                <BeatMark className="size-8 text-gold sm:size-10" />
+                <CrestMark className="h-11 w-auto sm:h-14" />
               </div>
             </div>
             <div>

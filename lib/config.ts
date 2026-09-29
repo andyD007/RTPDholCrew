@@ -16,8 +16,8 @@ export const siteConfig = {
   serviceAreaLabel: "Raleigh • Durham • Cary • Triangle NC",
   // Placeholder contact details — editable in Admin → Settings.
   email: "bookings@rtpdholcrew.com",
-  phone: "+1 (919) 555-0142",
-  phoneHref: "tel:+19195550142",
+  phone: "+1 (267) 939-4505",
+  phoneHref: "tel:+12679394505",
   address: { locality: "Raleigh", region: "NC", country: "US" },
   social: {
     instagram: "https://www.instagram.com/rtpdholcrew/",

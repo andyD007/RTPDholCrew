@@ -219,7 +219,7 @@ insert into public.automation_rules (key, name, description, trigger_event, dela
 on conflict (key) do nothing;
 
 insert into public.settings (key, value, is_public) values
-  ('business.profile', '{"name":"RTP Dhol Crew","email":"bookings@rtpdholcrew.com","phone":"+1 (919) 555-0142","address":"Raleigh, NC","serviceArea":"Raleigh • Durham • Cary • Chapel Hill • Triangle NC"}'::jsonb, true),
+  ('business.profile', '{"name":"RTP Dhol Crew","email":"bookings@rtpdholcrew.com","phone":"+1 (267) 939-4505","address":"Raleigh, NC","serviceArea":"Raleigh • Durham • Cary • Chapel Hill • Triangle NC"}'::jsonb, true),
   ('business.social', '{"instagram":"https://www.instagram.com/rtpdholcrew/","facebook":"","googleReview":"","facebookReview":""}'::jsonb, true),
   ('pricing.rules', '{"travelFreeRadiusMiles":25,"travelPerMileCents":150,"weekendPremiumPercent":10,"peakSeasonMonths":[4,5,9,10,11],"peakSeasonPremiumPercent":10,"lastMinuteDays":14,"lastMinutePremiumPercent":10,"additionalPerformerPercent":80,"defaultTaxRateBps":0}'::jsonb, false),
   ('deposit.rules', '{"type":"percent","percent":30,"minimumCents":10000,"quoteExpiryDays":7}'::jsonb, false),

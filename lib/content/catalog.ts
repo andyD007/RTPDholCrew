@@ -634,7 +634,7 @@ export const defaultSettings: { key: string; value: unknown; isPublic: boolean }
     value: {
       name: "RTP Dhol Crew",
       email: "bookings@rtpdholcrew.com",
-      phone: "+1 (919) 555-0142",
+      phone: "+1 (267) 939-4505",
       address: "Raleigh, NC",
       serviceArea: "Raleigh • Durham • Cary • Chapel Hill • Triangle NC",
     },
