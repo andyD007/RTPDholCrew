@@ -33,7 +33,7 @@ export default async function AboutPage() {
       <section className="py-16 sm:py-24">
         <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border">
-            <Image src="/media/samples/about-crew.jpg" alt="RTP Dhol Crew performing under warm stage lights" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            <Image src="/media/samples/about-crew.jpg" alt="RTP Dhol Crew dhol player performing lakeside" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
           </div>
           <div className="space-y-6 text-lg leading-relaxed text-foreground/85">
             <p>

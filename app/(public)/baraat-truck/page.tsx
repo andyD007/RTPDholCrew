@@ -35,7 +35,7 @@ export default async function BaraatTruckPage() {
       <section className="py-16 sm:py-24">
         <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border">
-            <Image src="/media/samples/service-truck.jpg" alt="Concept lighting for the RTP Baraat Truck" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            <Image src="/media/samples/service-truck.jpg" alt="Live dhol alongside a Baraat DJ truck and sound system" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
           </div>
           <div>
             <h2 className="font-display text-5xl sm:text-6xl">What&apos;s on board</h2>
