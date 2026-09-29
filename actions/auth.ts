@@ -6,6 +6,7 @@ import { createSessionClient, isSupabaseConfigured } from "@/lib/database/server
 import { rateLimit } from "@/lib/security/rate-limit";
 import { getClientIp } from "@/lib/security/request";
 import { absoluteUrl } from "@/lib/utils";
+import { resolveSupabaseEnv } from "@/lib/supabase-env";
 
 export type AuthState = { error?: string; message?: string };
 
@@ -34,7 +35,8 @@ export async function signInWithPassword(_prev: AuthState, formData: FormData): 
     // API key, auth outage) is shown so configuration problems are fixable.
     console.error("[auth] signInWithPassword failed", { code: error.code, status: error.status, message: error.message });
     if (error.code === "invalid_credentials") return { error: "Invalid email or password." };
-    return { error: `Sign-in failed: ${error.message}${error.code ? ` (${error.code})` : ""}` };
+    const host = resolveSupabaseEnv().url?.replace(/^https?:\/\//, "") ?? "no Supabase URL";
+    return { error: `Sign-in failed: ${error.message}${error.code ? ` (${error.code})` : ""}. Contacting ${host}.` };
   }
   redirect(safeNext(formData.get("next")));
 }
