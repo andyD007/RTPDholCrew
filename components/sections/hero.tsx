@@ -49,10 +49,10 @@ function HeroPoster() {
   const common = { alt: "", sizes: "100vw", fetchPriority: "high" as const };
   const {
     props: { srcSet: desktop },
-  } = getImageProps({ ...common, width: 1920, height: 1080, quality: 75, src: "/media/samples/hero-poster.jpg" });
+  } = getImageProps({ ...common, width: 1280, height: 720, quality: 70, src: "/media/samples/hero-poster.jpg" });
   const {
     props: { srcSet: mobile, ...rest },
-  } = getImageProps({ ...common, width: 900, height: 1600, quality: 70, src: "/media/samples/hero-poster-mobile.jpg" });
+  } = getImageProps({ ...common, width: 576, height: 1024, quality: 75, src: "/media/samples/hero-poster-mobile.jpg" });
   return (
     <picture>
       <source media="(min-width: 640px)" srcSet={desktop} />

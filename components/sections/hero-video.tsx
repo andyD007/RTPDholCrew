@@ -8,7 +8,12 @@ type NetworkInformation = { saveData?: boolean; effectiveType?: string };
  * Loads the hero reel only when it makes sense: not on reduced motion, not on
  * Save-Data / slow connections. The poster image underneath stays the LCP.
  */
-export function HeroVideo({ src }: { src: string }) {
+/**
+ * Portrait screens show the vertical reel full-bleed; landscape screens get a
+ * softly blurred, slightly zoomed version as ambient motion (a 9:16 phone clip
+ * cropped to 16:9 would otherwise look soft).
+ */
+export function HeroVideo({ src, poster }: { src: string; poster?: string }) {
   const [enabled, setEnabled] = useState(false);
   const [ready, setReady] = useState(false);
   const ref = useRef<HTMLVideoElement>(null);
@@ -30,8 +35,8 @@ export function HeroVideo({ src }: { src: string }) {
   return (
     <video
       ref={ref}
-      className={`absolute inset-0 -z-20 size-full object-cover transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`}
-      src={src}
+      className={`absolute inset-0 -z-20 size-full object-cover transition-opacity duration-1000 landscape:scale-110 landscape:blur-md ${ready ? "opacity-100" : "opacity-0"}`}
+      poster={poster}
       autoPlay
       muted
       loop
@@ -39,6 +44,10 @@ export function HeroVideo({ src }: { src: string }) {
       preload="metadata"
       aria-hidden
       onCanPlay={() => setReady(true)}
-    />
+    >
+      {/* MP4 (H.264) plays almost everywhere; the local reel also ships a WebM fallback. */}
+      <source src={src} type={src.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+      {src.startsWith("/") && src.endsWith(".mp4") ? <source src={src.replace(/\.mp4$/, ".webm")} type="video/webm" /> : null}
+    </video>
   );
 }

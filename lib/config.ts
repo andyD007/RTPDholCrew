@@ -25,7 +25,7 @@ export const siteConfig = {
     youtube: "",
     googleReview: "",
   },
-  heroVideoUrl: process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "",
+  heroVideoUrl: process.env.NEXT_PUBLIC_HERO_VIDEO_URL || "/media/hero/hero-reel.mp4",
   analytics: {
     gaId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "",
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || "",
