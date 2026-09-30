@@ -26,13 +26,14 @@ const schema = z.object({
     .string()
     .optional()
     .transform((v) => normalizeSiteUrl(v)),
-  NEXT_PUBLIC_BUSINESS_TIMEZONE: z.string().default("America/New_York"),
+  NEXT_PUBLIC_BUSINESS_TIMEZONE: optional.transform((v) => v ?? "America/New_York"),
 
   NEXT_PUBLIC_SUPABASE_URL: optional,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: optional,
   SUPABASE_SERVICE_ROLE_KEY: optional,
-  SUPABASE_MEDIA_BUCKET: z.string().default("media"),
-  SUPABASE_DOCUMENTS_BUCKET: z.string().default("documents"),
+  // Blank values (a variable created but left empty) fall back to the defaults.
+  SUPABASE_MEDIA_BUCKET: optional.transform((v) => v ?? "media"),
+  SUPABASE_DOCUMENTS_BUCKET: optional.transform((v) => v ?? "documents"),
 
   APP_SECRET: optional,
   CRON_SECRET: optional,
@@ -47,7 +48,7 @@ const schema = z.object({
   STRIPE_STATEMENT_DESCRIPTOR_SUFFIX: optional,
 
   RESEND_API_KEY: optional,
-  EMAIL_FROM: z.string().default("RTP Dhol Crew <bookings@rtpdholcrew.com>"),
+  EMAIL_FROM: optional.transform((v) => v ?? "RTP Dhol Crew <bookings@rtpdholcrew.com>"),
   EMAIL_REPLY_TO: optional,
   ADMIN_NOTIFICATION_EMAIL: optional,
 
@@ -58,9 +59,9 @@ const schema = z.object({
 
   AI_PROVIDER: choice(["anthropic", "openai", "none"], "anthropic"),
   ANTHROPIC_API_KEY: optional,
-  ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
+  ANTHROPIC_MODEL: optional.transform((v) => v ?? "claude-sonnet-5"),
   OPENAI_API_KEY: optional,
-  OPENAI_MODEL: z.string().default("gpt-5-mini"),
+  OPENAI_MODEL: optional.transform((v) => v ?? "gpt-5-mini"),
 
   CALENDAR_PROVIDER: choice(["ics", "google"], "ics"),
   GOOGLE_CALENDAR_ID: optional,
