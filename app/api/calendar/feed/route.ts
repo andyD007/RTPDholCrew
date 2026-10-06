@@ -13,7 +13,13 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key") ?? "";
-  if (!isSupabaseConfigured() || !safeEqual(key, sign("calendar-feed-v1"))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let expected: string;
+  try {
+    expected = sign("calendar-feed-v1");
+  } catch {
+    return NextResponse.json({ error: "Calendar feed is not configured" }, { status: 503 });
+  }
+  if (!isSupabaseConfigured() || !safeEqual(key, expected)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const db = createServiceClient();
   const since = new Date(Date.now() - 90 * 86_400_000).toISOString();
   const { data } = await db.from("bookings").select("lead_id, leads!inner(events!inner(starts_at))").in("status", ["pending", "confirmed", "completed"]).gte("leads.events.starts_at", since).limit(500);

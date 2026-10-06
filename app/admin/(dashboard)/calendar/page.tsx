@@ -28,7 +28,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
   const from = days[0];
   const to = days[days.length - 1];
 
-  const { data } = await db
+  const { data, error } = await db
     .from("leads")
     .select("id, status, events!inner(title, event_date, start_time, venues(city))")
     .gte("events.event_date", from)
@@ -43,7 +43,13 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
   const next = view === "month" ? shiftMonth(anchor, 1) : addDaysLocal(anchor, 7);
   const label = view === "month" ? new Date(`${anchor.slice(0, 7)}-15T12:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : `Week of ${new Date(`${from}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`;
   const href = (d: string, v = view) => `/admin/calendar?view=${v}&date=${d}`;
-  const feedUrl = absoluteUrl(`/api/calendar/feed?key=${sign("calendar-feed-v1")}`);
+  // The subscription link must never take the calendar down with it.
+  let feedUrl: string | null = null;
+  try {
+    feedUrl = absoluteUrl(`/api/calendar/feed?key=${sign("calendar-feed-v1")}`);
+  } catch (e) {
+    console.error("[calendar] could not build the feed URL", e);
+  }
 
   return (
     <>
@@ -75,6 +81,11 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
           </div>
         }
       />
+      {error ? (
+        <p role="alert" className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          Couldn&apos;t load events for this view: {error.message}
+        </p>
+      ) : null}
       <h2 className="mb-3 text-lg font-semibold">{label}</h2>
       <div className="overflow-x-auto rounded-2xl border border-border">
         <div className="grid min-w-[720px] grid-cols-7 border-b border-border bg-elevated text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -128,7 +139,11 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
           <Rss className="size-4 text-gold" /> Subscribe on your phone
         </p>
         <p className="mt-1 text-xs text-muted-foreground">Add this private URL to Google Calendar or Apple Calendar (&ldquo;Subscribe to calendar&rdquo;). Keep it secret. Google Calendar sync can also be enabled with a service account (see README).</p>
-        <CopyField value={feedUrl} className="mt-3" />
+        {feedUrl ? (
+          <CopyField value={feedUrl} className="mt-3" />
+        ) : (
+          <p className="mt-3 text-xs text-warning">The subscription link is unavailable right now. Set APP_SECRET (32+ characters) in your hosting settings and redeploy.</p>
+        )}
       </div>
     </>
   );

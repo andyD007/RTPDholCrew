@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import { normalizeSiteUrl } from "./site-url";
 import { resolveSupabaseEnv } from "./supabase-env";
@@ -118,12 +119,18 @@ export function integrations() {
 }
 
 /**
- * Secret used for HMAC operations. In production a missing APP_SECRET is a
- * hard error; in development a fixed dev secret keeps things working.
+ * Secret used for HMAC operations (signed links, the private calendar feed).
+ * Uses APP_SECRET when set (32+ chars). Otherwise, in production, a stable
+ * secret is derived from the service-role key — itself a server-only secret —
+ * so a missing/blank APP_SECRET never takes a page down. Development without
+ * either falls back to a fixed dev value.
  */
 export function appSecret(): string {
   const e = env();
   if (e.APP_SECRET && e.APP_SECRET.length >= 32) return e.APP_SECRET;
+  if (e.SUPABASE_SERVICE_ROLE_KEY) {
+    return createHash("sha256").update(`rtp-app-secret-v1:${e.SUPABASE_SERVICE_ROLE_KEY}`).digest("hex");
+  }
   if (e.NODE_ENV === "production") {
     throw new Error("APP_SECRET must be set (32+ chars) in production.");
   }
