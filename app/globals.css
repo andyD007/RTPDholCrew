@@ -116,10 +116,11 @@
   p {
     text-wrap: pretty;
   }
+  /* color-scheme: dark already draws a light picker icon — don't invert it back to black. */
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    opacity: 0.6;
+    opacity: 0.85;
+    cursor: pointer;
   }
 }
 

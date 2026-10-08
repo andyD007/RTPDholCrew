@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Label as LabelPrimitive, Checkbox as CheckboxPrimitive, Switch as SwitchPrimitive } from "radix-ui";
 import { Check } from "lucide-react";
@@ -6,8 +8,29 @@ import { cn } from "@/lib/utils";
 const fieldBase =
   "w-full min-w-0 rounded-xl border border-input bg-white/[0.03] px-4 text-base text-foreground placeholder:text-subtle transition-colors outline-none focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/30 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 md:text-sm";
 
-export function Input({ className, type = "text", ...props }: React.ComponentProps<"input">) {
-  return <input type={type} data-slot="input" className={cn(fieldBase, "h-12", className)} {...props} />;
+const PICKER_TYPES = new Set(["date", "time", "datetime-local", "month", "week"]);
+
+export function Input({ className, type = "text", onClick, ...props }: React.ComponentProps<"input">) {
+  const picker = PICKER_TYPES.has(type);
+  return (
+    <input
+      type={type}
+      data-slot="input"
+      className={cn(fieldBase, "h-12", picker && "cursor-pointer", className)}
+      onClick={(e) => {
+        onClick?.(e);
+        // Desktop browsers only open the calendar from the tiny icon; open it from anywhere in the field.
+        if (picker && !e.defaultPrevented && !props.readOnly && !props.disabled) {
+          try {
+            e.currentTarget.showPicker?.();
+          } catch {
+            /* not allowed in this context (e.g. cross-origin iframe) — the icon still works */
+          }
+        }
+      }}
+      {...props}
+    />
+  );
 }
 
 export function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
